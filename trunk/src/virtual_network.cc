@@ -494,6 +494,14 @@ VirtualNetwork::VlinkReadCompleteL2(
   }
   else if (fp.IsDtfMsg())
   {
+	shared_ptr<Tunnel> tnl = peer_network_->GetTunnel(fp.SourceMac());
+	IP4AddressType vip4_src;
+	ParseIP4String(
+		tnl->Vlink()->PeerInfo().vip4, vip4_src.begin(), vip4_src.end());
+
+	IPv4AddressMapper mapper(*frame, fp);
+	mapper.CheckAndPatch(vip4_src, tdev_->Ip4());
+
     frame->Dump("Frame from vlink");
     frame->BufferToTransfer(frame->Payload()); //write frame payload to TAP
     frame->BytesToTransfer(frame->PayloadLength());
@@ -679,6 +687,7 @@ VirtualNetwork::InjectFame(
   string && data)
 {
   unique_ptr<TapFrame> tf = make_unique<TapFrame>();
+  TapFrameProperties fp(*tf);
   tf->Initialize();
   if(data.length() > 2 * kTapBufferSize)
   {
@@ -687,6 +696,15 @@ VirtualNetwork::InjectFame(
       " is larger than maximum accepted " << kTapBufferSize;
     throw TCEXCEPT(oss.str().c_str());
   }
+
+  shared_ptr<Tunnel> tnl = peer_network_->GetTunnel(fp.SourceMac());
+  IP4AddressType vip4_src;
+  ParseIP4String(
+    tnl->Vlink()->PeerInfo().vip4, vip4_src.begin(), vip4_src.end());
+
+  IPv4AddressMapper mapper(*tf, fp);
+  mapper.CheckAndPatch(vip4_src, tdev_->Ip4());
+
   size_t len = StringToByteArray(data, tf->Payload(), tf->End());
   if(len != data.length() / 2)
     throw TCEXCEPT("Inject Frame operation failed - ICC decode failure");
