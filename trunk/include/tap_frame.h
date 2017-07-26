@@ -194,11 +194,32 @@ public:
     return memcmp(eth.DestinationMac(), "\xFF\xFF\xFF\xFF\xFF\xFF", 6) == 0;
   }
 
-  uint32_t DestinationIp4Address()
+  IP4AddressType & DestinationIp4Address()
   {
     EthOffsets eth = tf_.Payload();
     IpOffsets ipp = eth.Payload();
-    return *(uint32_t*)ipp.DestinationIp();
+    return *(IP4AddressType*)ipp.DestinationIp();
+  }
+
+  IP4AddressType & SourceIp4Address()
+  {
+    EthOffsets eth = tf_.Payload();
+    IpOffsets ipp = eth.Payload();
+    return *(IP4AddressType*)ipp.SourceIp();
+  }
+
+  IP4AddressType& ArpDestinationIp4Address()
+  {
+	  EthOffsets eth = tf_.Payload();
+	  ArpOffsets arp = eth.Payload();
+	  return *(IP4AddressType*)arp.DestinationIp();
+  }
+
+  IP4AddressType& ArpSourceIp4Address()
+  {
+	  EthOffsets eth = tf_.Payload();
+	  ArpOffsets arp = eth.Payload();
+	  return *(IP4AddressType*)arp.SourceIp();
   }
 
   MacAddressType & DestinationMac()
@@ -207,8 +228,53 @@ public:
     return *(MacAddressType *)(eth.DestinationMac());
   }
 
+  MacAddressType & SourceMac()
+  {
+    EthOffsets eth = tf_.Payload();
+    return *(MacAddressType *)(eth.SourceMac());
+  }
+
 private:
   TapFrame & tf_;
+};
+///////////////////////////////////////////////////////////////////////////////
+// IP4Mapper patches IP4 addresses for socialvpn
+class IPv4AddressMapper
+{
+public:
+  IPv4AddressMapper(TapFrame & tf, TapFrameProperties & fp) :
+    tf_(tf), fp_(fp)
+  {}
+
+  void CheckAndPatch(IP4AddressType& tunnelIp4Src, IP4AddressType& localIp4)
+  {
+    if (fp_.IsArpResponse() || fp_.IsArpRequest())
+	{
+      // ARP IP Address Packet Patching
+	  IP4AddressType& arpSrcIp = fp_.ArpSourceIp4Address();
+	  IP4AddressType& arpDestIp = fp_.ArpDestinationIp4Address();
+	  if (arpSrcIp != tunnelIp4Src)
+	  {
+		arpSrcIp = tunnelIp4Src;
+		arpDestIp = localIp4;
+	  }
+	}
+	else if (fp_.IsIp4())
+	{
+	  // IP4 Packet Patching
+	  IP4AddressType& frameSrcIp = fp_.SourceIp4Address();
+	  IP4AddressType& frameDstIp = fp_.DestinationIp4Address();
+	  if (frameSrcIp != tunnelIp4Src)
+	  {
+		frameSrcIp = tunnelIp4Src;
+		frameDstIp = localIp4;
+	  }
+	}
+  }
+
+private:
+  TapFrame & tf_;
+  TapFrameProperties & fp_;
 };
 } //namespace tincan
 #endif  // TINCAN_TAP_FRAME_H_
