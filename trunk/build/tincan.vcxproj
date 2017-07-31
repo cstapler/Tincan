@@ -183,6 +183,7 @@
     <ClInclude Include="..\include\vnet_descriptor.h" />
     <ClInclude Include="..\include\windows\tapdev_win.h" />
     <ClInclude Include="..\include\windows\win_exception.h" />
+    <ClInclude Include="..\include\windows\win_netutils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\control_dispatch.cc" />
@@ -196,6 +197,7 @@
     <ClCompile Include="..\src\tincan_main.cc" />
     <ClCompile Include="..\src\virtual_network.cc" />
     <ClCompile Include="..\src\windows\tapdev_win.cc" />
+    <ClCompile Include="..\src\windows\win_netutils.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DD4C0E91-0669-4FFE-9676-DDFD405A0440}</ProjectGuid>

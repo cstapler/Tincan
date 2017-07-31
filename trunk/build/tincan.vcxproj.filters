@@ -529,6 +529,9 @@
     <ClInclude Include="..\include\tunnel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\windows\win_netutils.h">
+      <Filter>Header Files\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
@@ -563,6 +566,9 @@
     </ClCompile>
     <ClCompile Include="..\src\tunnel.cc">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\windows\win_netutils.cc">
+      <Filter>Source Files\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
