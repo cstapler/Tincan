@@ -194,25 +194,6 @@ size_t StringToByteArray(
   }
   return count;
 }
-
-template<typename OutputIter>
-void ParseIP4String(
-  const string & src,
-  OutputIter first,
-  OutputIter last)
-{
-  int cByte;
-  char sep;
-  istringstream iss(src);
-  while (first != last) {
-	iss >> cByte;
-	if (iss.peek() != std::istringstream::traits_type::eof())
-	{
-		iss >> sep;
-	}
-	(*first++) = (uint8_t) cByte;
-  }
-}
 ///////////////////////////////////////////////////////////////////////////////
 //ArpOffset
 class ArpOffsets
@@ -222,10 +203,6 @@ public:
     pkt_(arp_packet)
   {}
   uint8_t* HardwareType()
-  {
-    return pkt_;
-  }
-  uint8_t* HeaderLen()
   {
     return pkt_;
   }

@@ -37,6 +37,12 @@
 #include "tap_frame.h"
 #include "peer_descriptor.h"
 
+#if defined(_IPOP_LINUX)
+#include "linux/lnx_netutils.h"
+#elif defined(_IPOP_WIN)
+#include "windows/win_netutils.h"
+#endif
+
 namespace tincan
 {
 using namespace rtc;
@@ -78,6 +84,11 @@ public:
   PeerDescriptor& PeerInfo()
   {
     return *peer_desc_.get();
+  }
+
+  IP4AddressType& PeerIp4()
+  {
+	  return peer_ip4_;
   }
 
   void StartConnections();
@@ -147,6 +158,7 @@ private:
   cricket::Candidates local_candidates_;
   const uint64_t tiebreaker_;
   cricket::IceRole ice_role_;
+  IP4AddressType peer_ip4_;
   ConnectionRole conn_role_;
   TransportChannel * channel_;
   unique_ptr<cricket::TransportDescription> local_description_;

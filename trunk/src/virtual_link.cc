@@ -23,6 +23,7 @@
 #include "virtual_link.h"
 #include "webrtc/base/stringencode.h"
 #include "tincan_exception.h"
+
 namespace tincan
 {
 using namespace rtc;
@@ -33,6 +34,7 @@ VirtualLink::VirtualLink(
   rtc::Thread* network_thread) :
   vlink_desc_(move(vlink_desc)),
   peer_desc_(move(peer_desc)),
+  peer_ip4_({}),
   packet_factory_(network_thread),
   tiebreaker_(rtc::CreateRandomId64()),
   conn_role_(cricket::CONNECTIONROLE_ACTPASS),
@@ -44,6 +46,11 @@ VirtualLink::VirtualLink(
 {
   content_name_.append(vlink_desc_->name).append("_").append(
     peer_desc_->mac_address);
+#if defined (_IPOP_WIN)
+  windows::ParseIP4String(peer_desc_->vip4, &peer_ip4_);
+#elif (_IPOP_LINUX)
+  linux::ParseIP4String(peer_desc_->vip4, &peer_ip4_);
+#endif
 }
 
 VirtualLink::~VirtualLink()

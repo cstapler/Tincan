@@ -208,14 +208,14 @@ public:
     return *(IP4AddressType*)ipp.SourceIp();
   }
 
-  IP4AddressType& ArpDestinationIp4Address()
+  IP4AddressType & ArpDestinationIp4Address()
   {
 	  EthOffsets eth = tf_.Payload();
 	  ArpOffsets arp = eth.Payload();
 	  return *(IP4AddressType*)arp.DestinationIp();
   }
 
-  IP4AddressType& ArpSourceIp4Address()
+  IP4AddressType & ArpSourceIp4Address()
   {
 	  EthOffsets eth = tf_.Payload();
 	  ArpOffsets arp = eth.Payload();
@@ -239,35 +239,35 @@ private:
 };
 ///////////////////////////////////////////////////////////////////////////////
 // IP4Mapper patches IP4 addresses for socialvpn
-class IPv4AddressMapper
+class IP4AddressMapper
 {
 public:
-  IPv4AddressMapper(TapFrame & tf, TapFrameProperties & fp) :
+  IP4AddressMapper(TapFrame & tf, TapFrameProperties & fp) :
     tf_(tf), fp_(fp)
   {}
 
-  void CheckAndPatch(IP4AddressType& tunnelIp4Src, IP4AddressType& localIp4)
+  void CheckAndPatch(const IP4AddressType& tunnel_ip4_src, const IP4AddressType& local_ip4)
   {
     if (fp_.IsArpResponse() || fp_.IsArpRequest())
 	{
-      // ARP IP Address Packet Patching
-	  IP4AddressType& arpSrcIp = fp_.ArpSourceIp4Address();
-	  IP4AddressType& arpDestIp = fp_.ArpDestinationIp4Address();
-	  if (arpSrcIp != tunnelIp4Src)
+      // ARP IPv4 Address Packet Patching
+	  IP4AddressType& arp_pkt_src_ip = fp_.ArpSourceIp4Address();
+	  IP4AddressType& arp_pkt_des_ip = fp_.ArpDestinationIp4Address();
+	  if (arp_pkt_src_ip != tunnel_ip4_src)
 	  {
-		arpSrcIp = tunnelIp4Src;
-		arpDestIp = localIp4;
+		arp_pkt_src_ip = tunnel_ip4_src;
+		arp_pkt_des_ip = local_ip4;
 	  }
 	}
 	else if (fp_.IsIp4())
 	{
-	  // IP4 Packet Patching
-	  IP4AddressType& frameSrcIp = fp_.SourceIp4Address();
-	  IP4AddressType& frameDstIp = fp_.DestinationIp4Address();
-	  if (frameSrcIp != tunnelIp4Src)
+	  // IPv4 Address Packet Patching
+	  IP4AddressType& ip_pkt_src = fp_.SourceIp4Address();
+	  IP4AddressType& ip_pkt_des = fp_.DestinationIp4Address();
+	  if (ip_pkt_src != tunnel_ip4_src)
 	  {
-		frameSrcIp = tunnelIp4Src;
-		frameDstIp = localIp4;
+		ip_pkt_src = tunnel_ip4_src;
+		ip_pkt_des = local_ip4;
 	  }
 	}
   }
